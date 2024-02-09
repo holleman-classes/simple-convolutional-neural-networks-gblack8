@@ -1,14 +1,15 @@
+##Libraries Imported
 
-### Add lines to import modules as needed
 import tensorflow as tf
 from tensorflow.keras import Input, layers
 from tensorflow.keras.datasets import cifar10
 from tensorflow.keras.utils import to_categorical
-##
 import tensorflow as tf
 from tensorflow.keras import models, Model
 import numpy as np
 from PIL import Image
+
+# Define Model 1
 def build_model1(input_shape=(32, 32, 3)):
     # Define the model
     model1 = tf.keras.Sequential([
@@ -34,9 +35,9 @@ def build_model1(input_shape=(32, 32, 3)):
 
     return model1
 
+# Define Model 2
 def build_model2(input_shape=(32, 32, 3)):
     # Define the model
-
     model2 = tf.keras.Sequential([
         layers.Input(shape=input_shape),
         layers.Conv2D(32, kernel_size=(3,3), strides=(2,2), activation="relu", padding='same'),
@@ -59,6 +60,8 @@ def build_model2(input_shape=(32, 32, 3)):
     model2.add(layers.Dense(10, activation='softmax'))
 
     return model2
+
+# Define Model 3
 def build_model3(input_shape=(32, 32, 3)):
     # Define input layer
     inputs = tf.keras.Input(shape=input_shape)
@@ -92,7 +95,6 @@ def build_model3(input_shape=(32, 32, 3)):
         x = layers.Dropout(0.2)(x)
     x = layers.Add()([x, shortcut3])
 
-
     x = layers.MaxPooling2D(pool_size=(4, 4))(x)
     x = layers.Flatten()(x)
     x = layers.Dense(128, activation='relu')(x)
@@ -104,9 +106,7 @@ def build_model3(input_shape=(32, 32, 3)):
 
     return model3
 
-
-
-
+# Define Model 50k
 def build_model50k(input_shape=(32, 32, 3), dropout_rate=0.2):
     model50k = tf.keras.Sequential([
         layers.Input(shape=input_shape),
@@ -131,155 +131,177 @@ def build_model50k(input_shape=(32, 32, 3), dropout_rate=0.2):
     model50k.add(layers.Dense(10, activation='softmax'))
     return model50k
 
-# no training or dataset construction should happen above this line
+# Main section
 if __name__ == '__main__':
+    ########################################
+    # Load CIFAR-10 dataset
+    (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
+    class_names = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck']
+    train_labels = train_labels.squeeze()
+    test_labels = test_labels.squeeze()
 
-  ########################################
-  (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
-  class_names = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck']
-  train_labels = train_labels.squeeze()
-  test_labels = test_labels.squeeze()
-
-  input_shape = train_images.shape[1:]
-  train_images = train_images / 255.0
-  test_images = test_images / 255.0
+    input_shape = train_images.shape[1:]
+    train_images = train_images / 255.0
+    test_images = test_images / 255.0
 
   ########################################
   ## Build and train model 1
-  model1 = build_model1()
+model1 = build_model1()
   # compile and train model 1.
   # Train the model
-  model1.compile(optimizer='adam',
+model1.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
-  history = model1.fit(train_images, train_labels, epochs=50, validation_data=(test_images, test_labels))
-  test_loss, test_acc = model1.evaluate(train_images, train_labels, verbose=2)
+history = model1.fit(train_images, train_labels, epochs=50, validation_data=(test_images, test_labels))
+test_loss, test_acc = model1.evaluate(train_images, train_labels, verbose=2)
 
 #image processing test for model 1
-  image_path = "test_image_model1.png"
-  image = Image.open(image_path)
-  image = image.resize((32, 32))
+image_path = "test_image_model1.png"
+image = Image.open(image_path)
+image = image.resize((32, 32))
 
-  if image.mode != 'RGB':
+if image.mode != 'RGB':
     image = image.convert('RGB')
 
   # Convert image to numpy array and normalize
-  image_array = np.array(image) / 255.0  # Normalize pixel values to [0, 1]
+image_array = np.array(image) / 255.0  # Normalize pixel values to [0, 1]
 
   # Expand dimensions to match the input shape expected by the model
-  image_array = np.expand_dims(image_array, axis=0)
+image_array = np.expand_dims(image_array, axis=0)
 
   # Make predictions
-  predictions = model1.predict(image_array)
+predictions = model1.predict(image_array)
 
   # Get the predicted class
-  predicted_class = np.argmax(predictions[0])
+predicted_class = np.argmax(predictions[0])
 
   # Print the predicted class
-  print("Predicted class:", predicted_class)
+print("Predicted class:", predicted_class)
 
 #########################################
   ## Build, compile, and train model 2 (DS Convolutions)
-  model2 = build_model2()
+model2 = build_model2()
   # compile and train model 1.
   # Train the model
-  model2.compile(optimizer='adam',
+model2.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
-  history2 = model2.fit(train_images, train_labels, epochs=50, validation_data=(test_images, test_labels))
-  test_loss, test_acc = model2.evaluate(train_images, train_labels, verbose=2)
+history2 = model2.fit(train_images, train_labels, epochs=50, validation_data=(test_images, test_labels))
+test_loss, test_acc = model2.evaluate(train_images, train_labels, verbose=2)
 
 #image processing test for model 2
-  image_path = "test_image_model2.png"
-  image = Image.open(image_path)
-  image = image.resize((32, 32))
+image_path = "test_image_model2.png"
+image = Image.open(image_path)
+image = image.resize((32, 32))
 
-  if image.mode != 'RGB':
+if image.mode != 'RGB':
     image = image.convert('RGB')
 
   # Convert image to numpy array and normalize
-  image_array = np.array(image) / 255.0  # Normalize pixel values to [0, 1]
+image_array = np.array(image) / 255.0  # Normalize pixel values to [0, 1]
 
   # Expand dimensions to match the input shape expected by the model
-  image_array = np.expand_dims(image_array, axis=0)
+image_array = np.expand_dims(image_array, axis=0)
 
   # Make predictions
-  predictions = model2.predict(image_array)
+predictions = model2.predict(image_array)
 
   # Get the predicted class
-  predicted_class = np.argmax(predictions[0])
+predicted_class = np.argmax(predictions[0])
 
   # Print the predicted class
-  print("Predicted class:", predicted_class)
+print("Predicted class:", predicted_class)
 
 #########################################
   ### Repeat for model 3
   ## Build and train model 1
-  model3 = build_model3()
+model3 = build_model3()
   # compile and train model 1.
   # Train the model
-  model3.compile(optimizer='adam',
+model3.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
-  history = model3.fit(train_images, train_labels, epochs=50, validation_data=(test_images, test_labels))
-  test_loss, test_acc = model3.evaluate(train_images, train_labels, verbose=2)
+history = model3.fit(train_images, train_labels, epochs=50, validation_data=(test_images, test_labels))
+test_loss, test_acc = model3.evaluate(train_images, train_labels, verbose=2)
 
 #image processing test for model 3
-  image_path = "test_image_model3.png"
-  image = Image.open(image_path)
-  image = image.resize((32, 32))
+image_path = "test_image_model3.png"
+image = Image.open(image_path)
+image = image.resize((32, 32))
 
-  if image.mode != 'RGB':
+if image.mode != 'RGB':
     image = image.convert('RGB')
 
   # Convert image to numpy array and normalize
-  image_array = np.array(image) / 255.0  # Normalize pixel values to [0, 1]
+image_array = np.array(image) / 255.0  # Normalize pixel values to [0, 1]
 
   # Expand dimensions to match the input shape expected by the model
-  image_array = np.expand_dims(image_array, axis=0)
+image_array = np.expand_dims(image_array, axis=0)
 
   # Make predictions
-  predictions = model1.predict(image_array)
+predictions = model1.predict(image_array)
 
   # Get the predicted class
-  predicted_class = np.argmax(predictions[0])
+predicted_class = np.argmax(predictions[0])
 
   # Print the predicted class
-  print("Predicted class:", predicted_class)
+print("Predicted class:", predicted_class)
 
 #########################################
   ### Repeat for model 50k
   ## Build and train model 50k
-  model50k = build_model50k()
+model50k = build_model50k()
   # compile and train model 50k
   # Train the model
-  model50k.compile(optimizer='adam',
+model50k.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
-  history = model50k.fit(train_images, train_labels, epochs=50, validation_data=(test_images, test_labels))
-  test_loss, test_acc = model50k.evaluate(train_images, train_labels, verbose=2)
+history = model50k.fit(train_images, train_labels, epochs=50, validation_data=(test_images, test_labels))
+test_loss, test_acc = model50k.evaluate(train_images, train_labels, verbose=2)
 
-  model50k.save("best_model.h5")
+model50k.save("best_model.h5")
 
 #image processing test for model 50k
-  image_path = "Airplane.png"
-  image = Image.open(image_path)
-  image = image.resize((32, 32))
+image_path = "Airplane.png"
+image = Image.open(image_path)
+image = image.resize((32, 32))
 
-  if image.mode != 'RGB':
+if image.mode != 'RGB':
     image = image.convert('RGB')
 
   # Convert image to numpy array and normalize
-  image_array = np.array(image) / 255.0  # Normalize pixel values to [0, 1]
+image_array = np.array(image) / 255.0  # Normalize pixel values to [0, 1]
 
   # Expand dimensions to match the input shape expected by the model
-  image_array = np.expand_dims(image_array, axis=0)
+image_array = np.expand_dims(image_array, axis=0)
 
   # Make predictions
-  predictions = model1.predict(image_array)
+predictions = model1.predict(image_array)
 
   # Get the predicted class
-  predicted_class = np.argmax(predictions[0])
+predicted_class = np.argmax(predictions[0])
 
   # Print the predicted class
-  print("Predicted class:", predicted_class)
+print("Predicted class:", predicted_class)
+
+
+########## INCLUDE SECTION #####################
+
+## 7.1 
+# No there was no overfitting 50 epochs seemed to be a overall fine number 
+# if there was more complex image maybe overfitting occurs.
+
+##8.1
+#The model predicted the image correctly and the predicted class was printed due to the accuracy and quality.
+
+##10
+#No no overfitting in this model seemed 50 epochs did fine.
+
+##12 
+#The timing on the epochs for the final model was extremely slow which could be due to a number of factors
+#The accuracy for all models were pretty similar with some minor dip in accuracy for each model at certain spots
+#The models all trained and there was slight differences between final accuracy and behavior.
+#overall it appears the models were effiecient.
+
+##13
+#Didn't make many changes to architecture to observe those changes 
